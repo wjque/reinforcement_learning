@@ -55,6 +55,7 @@ class TestPlayIntegration(unittest.TestCase):
                 self.assertIn("avg_steps", results[algo])
                 self.assertIn("cliff_rate", results[algo])
                 self.assertTrue((out_dir / f"policy_{algo}.png").exists())
+                self.assertTrue((out_dir / f"trajectory_{algo}.png").exists())
 
     def test_run_play_raises_on_missing_checkpoint(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:

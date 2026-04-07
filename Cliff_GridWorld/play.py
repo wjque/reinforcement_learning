@@ -7,8 +7,28 @@ from typing import Dict
 from common.checkpoints import SUPPORTED_ALGOS, checkpoint_filename
 from common.evaluation import evaluate_agent
 from common.factory import create_agent
-from common.visualization import plot_policy_heatmap
+from common.visualization import plot_policy_heatmap, plot_trajectory
 from env.cliff_gridworld import CliffGridWorldEnv
+
+
+def collect_episode_trajectory(agent, env, deterministic: bool, seed: int) -> tuple[list[tuple[int, int]], str]:
+    """Roll out one episode and collect visited grid positions."""
+    state = env.reset(seed=seed)
+    row, col = env.state_to_pos(state)
+    trajectory = [(row, col)]
+    done = False
+    end_event = "timeout"
+    steps = 0
+
+    while not done and steps < env.max_steps:
+        action = agent.act(state, deterministic=deterministic)
+        state, _reward, done, info = env.step(action)
+        row, col = env.state_to_pos(state)
+        trajectory.append((row, col))
+        end_event = str(info.get("event", "step"))
+        steps += 1
+
+    return trajectory, end_event
 
 
 def run_play(
@@ -58,6 +78,22 @@ def run_play(
             env=env,
             output_path=str(heatmap_path),
             title=f"Policy Heatmap: {algo}",
+        )
+
+        trajectory_env = CliffGridWorldEnv()
+        trajectory, end_event = collect_episode_trajectory(
+            agent=agent,
+            env=trajectory_env,
+            deterministic=deterministic,
+            seed=seed,
+        )
+        trajectory_path = out_path / f"trajectory_{algo}.png"
+        plot_trajectory(
+            trajectory=trajectory,
+            env=trajectory_env,
+            output_path=str(trajectory_path),
+            title=f"Trajectory: {algo}",
+            end_event=end_event,
         )
 
     return results
@@ -118,4 +154,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

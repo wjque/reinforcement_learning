@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 from torch.distributions import Categorical
 
 from common.base_agent import BaseAgent
@@ -158,8 +159,20 @@ class PPOAgent(BaseAgent):
         values: torch.Tensor,
         next_values: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        # TODO: GAE computation.
-        raise NotImplementedError("TODO: implement PPO GAE and returns.")
+        # Generalized Advantage Estimation (GAE):
+        # delta_t = r_t + gamma * (1 - done_t) * V(s_{t+1}) - V(s_t)
+        # A_t = delta_t + gamma * lambda * (1 - done_t) * A_{t+1}
+        deltas = rewards + self.gamma * (1.0 - dones) * next_values - values
+        advantages = torch.zeros_like(rewards, device=self.device)
+
+        gae = 0.0
+        for t in reversed(range(rewards.shape[0])):
+            gae = deltas[t] + self.gamma * self.gae_lambda * (1.0 - dones[t]) * gae
+            advantages[t] = gae
+
+        returns = advantages + values
+        advantages = (advantages - advantages.mean()) / (advantages.std(unbiased=False) + 1e-8)
+        return advantages, returns
 
     def _policy_loss(
         self,
@@ -167,19 +180,25 @@ class PPOAgent(BaseAgent):
         old_log_probs: torch.Tensor,
         advantages: torch.Tensor,
     ) -> torch.Tensor:
-        # TODO: PPO clipped surrogate objective.
-        # Use ratio = exp(new_log_prob - old_log_prob) and clip to [1-eps, 1+eps].
-        raise NotImplementedError("TODO: implement PPO clipped policy loss.")
+        # PPO clipped surrogate objective:
+        # L_clip = E[min(r_t * A_t, clip(r_t, 1-eps, 1+eps) * A_t)]
+        # We minimize the negative objective in gradient descent.
+        ratio = torch.exp(new_log_probs - old_log_probs)
+        clipped_ratio = torch.clamp(ratio, 1.0 - self.clip_eps, 1.0 + self.clip_eps)
+        surrogate_1 = ratio * advantages.detach()
+        surrogate_2 = clipped_ratio * advantages.detach()
+        return -torch.min(surrogate_1, surrogate_2).mean()
 
     def _value_loss(self, new_values: torch.Tensor, returns: torch.Tensor) -> torch.Tensor:
-        # TODO: value regression loss.
-        raise NotImplementedError("TODO: implement PPO value loss.")
+        # Value-function regression.
+        return F.mse_loss(new_values, returns.detach())
 
     def _total_loss(
         self, policy_loss: torch.Tensor, value_loss: torch.Tensor, entropy: torch.Tensor
     ) -> torch.Tensor:
-        # TODO: total PPO loss combination.
-        raise NotImplementedError("TODO: implement PPO total loss composition.")
+        # Minimize:
+        # L = L_policy + c1 * L_value - c2 * entropy
+        return policy_loss + self.value_coef * value_loss - self.entropy_coef * entropy
 
     def act(self, state: int, deterministic: bool = True) -> int:
         with torch.no_grad():
@@ -221,4 +240,3 @@ class PPOAgent(BaseAgent):
                 logits, _ = self.net(self._state_tensor(state))
                 actions[state] = int(torch.argmax(logits, dim=-1).item())
         return actions
-

@@ -5,6 +5,7 @@ from typing import Any, Dict
 
 import numpy as np
 import torch
+import torch.nn.functional as F
 from torch.distributions import Categorical
 
 from common.base_agent import BaseAgent
@@ -112,8 +113,12 @@ class ActorCriticAgent(BaseAgent):
         values = self.critic(states_t).squeeze(-1)
         with torch.no_grad():
             next_values = self.critic(next_states_t).squeeze(-1)
-
-        advantage = self._compute_advantage(rewards_t, dones_t, values, next_values)
+        
+        # advantage estimation for Actor-Critic.
+        # Typical one-step TD advantage:
+        # A_t = r_t + gamma * (1 - done_t) * V(s_{t+1}) - V(s_t)
+        td_target = rewards_t + self.gamma * (1 - dones_t) * next_values
+        advantage = td_target - values
 
         logits = self.actor(states_t)
         dist = Categorical(logits=logits)
@@ -121,7 +126,7 @@ class ActorCriticAgent(BaseAgent):
 
         actor_loss = self._actor_loss(log_probs, advantage)
 
-        critic_loss = self._critic_loss(rewards_t, dones_t, values, next_values)
+        critic_loss = self._critic_loss(td_target, values)
 
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
@@ -131,35 +136,19 @@ class ActorCriticAgent(BaseAgent):
         critic_loss.backward()
         self.critic_optimizer.step()
 
-    def _compute_advantage(
-        self,
-        rewards: torch.Tensor,
-        dones: torch.Tensor,
-        values: torch.Tensor,
-        next_values: torch.Tensor,
-    ) -> torch.Tensor:
-        # advantage estimation for Actor-Critic.
-        # Typical one-step TD advantage:
-        # A_t = r_t + gamma * (1 - done_t) * V(s_{t+1}) - V(s_t)
-        return rewards + self.gamma * (1 - dones) * next_values - values
-
     def _actor_loss(self, log_probs: torch.Tensor, advantage: torch.Tensor) -> torch.Tensor:
         # actor loss.
         # L_actor = -E[log pi(a_t|s_t) * A_t]
-        all_loss = log_probs * advantage
-        return all_loss.mean()
+        return -(log_probs * advantage.detach()).mean()
 
     def _critic_loss(
         self,
-        rewards: torch.Tensor,
-        dones: torch.Tensor,
+        td_target: torch.Tensor,
         values: torch.Tensor,
-        next_values: torch.Tensor,
     ) -> torch.Tensor:
         # critic loss.
         # L_critic = MSE(V(s_t), r_t + gamma * (1-done_t) * V(s_{t+1}))
-        all_loss = (values - rewards - self.gamma * (1-dones) * next_values)
-        return all_loss.mean()
+        return F.mse_loss(values, td_target)
 
     def act(self, state: int, deterministic: bool = True) -> int:
         with torch.no_grad():

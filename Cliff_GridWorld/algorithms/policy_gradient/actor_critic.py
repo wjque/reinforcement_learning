@@ -25,7 +25,7 @@ class ActorCriticAgent(BaseAgent):
         *,
         rows: int = 4,
         cols: int = 12,
-        gamma: float = 0.99,
+        gamma: float = 0.9,
         actor_lr: float = 3e-4,
         critic_lr: float = 1e-3,
         hidden_dims: tuple[int, ...] = (64, 64),
@@ -125,13 +125,11 @@ class ActorCriticAgent(BaseAgent):
         log_probs = dist.log_prob(actions_t)
 
         actor_loss = self._actor_loss(log_probs, advantage)
-
-        critic_loss = self._critic_loss(td_target, values)
-
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
 
+        critic_loss = self._critic_loss(td_target, values)
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()

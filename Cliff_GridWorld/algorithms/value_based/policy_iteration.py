@@ -69,7 +69,7 @@ class PolicyIterationAgent(BaseAgent):
         # Bellman expectation backup for policy evaluation.
         # V(s) = sum_a pi(a|s) * [r(s,a,s') + gamma * V(s')]
         new_v = 0
-        for action in self.action_space:
+        for action in range(self.action_space):
             next_state, reward, done, info = env.transition(state, action)
             if done:
                 new_v += self.policy[state][action] * reward
@@ -81,10 +81,10 @@ class PolicyIterationAgent(BaseAgent):
         # Policy improvement step.
         # Pick argmax_a [r(s,a,s') + gamma * V(s')].
         if random.random() < 0.1:
-            return random.choice(self.action_space)
+            return random.choice(range(self.action_space))
         else:
             q_map = []
-            for action in self.action_space:
+            for action in range(self.action_space):
                 next_state, reward, done, info = env.transition(state, action)
                 if done:
                     q_map.append(reward)

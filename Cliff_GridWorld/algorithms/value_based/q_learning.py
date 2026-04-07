@@ -70,11 +70,11 @@ class QLearningAgent(BaseAgent):
         next_state: int,
         done: bool,
     ) -> None:
-        # TODO(student): Q-Learning TD update.
+        # TODO: Q-Learning TD update.
         # Formula target:
         # Q(s,a) <- Q(s,a) + alpha * [r + gamma * max_a' Q(s',a') - Q(s,a)]
         # Terminal transition should not bootstrap future value.
-        raise NotImplementedError("TODO(student): implement Q-Learning update.")
+        raise NotImplementedError("TODO: implement Q-Learning update.")
 
     def act(self, state: int, deterministic: bool = True) -> int:
         if deterministic:

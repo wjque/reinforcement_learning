@@ -34,7 +34,7 @@ Cliff_GridWorld/
 
 Key update formulas are intentionally left as:
 
-`# TODO(student): ...`
+`# TODO: ...`
 
 You should implement these parts yourself to learn the core math.
 

@@ -54,15 +54,15 @@ class ValueIterationAgent(BaseAgent):
         return {"iterations": iters, "converged": converged}
 
     def _optimality_backup_todo(self, env: Any, state: int) -> float:
-        # TODO(student): Bellman optimality backup.
+        # TODO: Bellman optimality backup.
         # Formula target:
         # V(s) = max_a [r(s,a,s') + gamma * V(s')]
-        raise NotImplementedError("TODO(student): implement Bellman optimality backup.")
+        raise NotImplementedError("TODO: implement Bellman optimality backup.")
 
     def _extract_policy_action_todo(self, env: Any, state: int) -> int:
-        # TODO(student): Policy extraction after value iteration.
+        # TODO: Policy extraction after value iteration.
         # Pick argmax_a [r(s,a,s') + gamma * V(s')].
-        raise NotImplementedError("TODO(student): implement greedy policy extraction.")
+        raise NotImplementedError("TODO: implement greedy policy extraction.")
 
     def act(self, state: int, deterministic: bool = True) -> int:
         if deterministic:

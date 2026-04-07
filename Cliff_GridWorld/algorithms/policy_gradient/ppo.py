@@ -117,7 +117,7 @@ class PPOAgent(BaseAgent):
             _, next_values_t = self.net(next_states_t)
             next_values_t = next_values_t.squeeze(-1)
 
-        # TODO(student): GAE computation.
+        # TODO: GAE computation.
         # Typical output:
         # advantages_t, returns_t
         advantages_t, returns_t = self._compute_gae_todo(
@@ -143,16 +143,16 @@ class PPOAgent(BaseAgent):
                 new_log_probs = dist.log_prob(mb_actions)
                 entropy = dist.entropy().mean()
 
-                # TODO(student): PPO clipped surrogate objective.
+                # TODO: PPO clipped surrogate objective.
                 # Use ratio = exp(new_log_prob - old_log_prob) and clip to [1-eps, 1+eps].
                 policy_loss = self._policy_loss_todo(
                     new_log_probs, mb_old_log_probs, mb_advantages
                 )
 
-                # TODO(student): value regression loss.
+                # TODO: value regression loss.
                 value_loss = self._value_loss_todo(new_values, mb_returns)
 
-                # TODO(student): total PPO loss combination.
+                # TODO: total PPO loss combination.
                 total_loss = self._total_loss_todo(policy_loss, value_loss, entropy)
 
                 self.optimizer.zero_grad()
@@ -166,7 +166,7 @@ class PPOAgent(BaseAgent):
         values: torch.Tensor,
         next_values: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor]:
-        raise NotImplementedError("TODO(student): implement PPO GAE and returns.")
+        raise NotImplementedError("TODO: implement PPO GAE and returns.")
 
     def _policy_loss_todo(
         self,
@@ -174,15 +174,15 @@ class PPOAgent(BaseAgent):
         old_log_probs: torch.Tensor,
         advantages: torch.Tensor,
     ) -> torch.Tensor:
-        raise NotImplementedError("TODO(student): implement PPO clipped policy loss.")
+        raise NotImplementedError("TODO: implement PPO clipped policy loss.")
 
     def _value_loss_todo(self, new_values: torch.Tensor, returns: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError("TODO(student): implement PPO value loss.")
+        raise NotImplementedError("TODO: implement PPO value loss.")
 
     def _total_loss_todo(
         self, policy_loss: torch.Tensor, value_loss: torch.Tensor, entropy: torch.Tensor
     ) -> torch.Tensor:
-        raise NotImplementedError("TODO(student): implement PPO total loss composition.")
+        raise NotImplementedError("TODO: implement PPO total loss composition.")
 
     def act(self, state: int, deterministic: bool = True) -> int:
         with torch.no_grad():

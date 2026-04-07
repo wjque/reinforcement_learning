@@ -111,7 +111,7 @@ class ActorCriticAgent(BaseAgent):
         with torch.no_grad():
             next_values = self.critic(next_states_t).squeeze(-1)
 
-        # TODO(student): advantage estimation for Actor-Critic.
+        # TODO: advantage estimation for Actor-Critic.
         # Typical one-step TD advantage:
         # A_t = r_t + gamma * (1 - done_t) * V(s_{t+1}) - V(s_t)
         advantage = self._compute_advantage_todo(rewards_t, dones_t, values, next_values)
@@ -120,12 +120,12 @@ class ActorCriticAgent(BaseAgent):
         dist = Categorical(logits=logits)
         log_probs = dist.log_prob(actions_t)
 
-        # TODO(student): actor loss.
+        # TODO: actor loss.
         # Typical objective:
         # L_actor = -E[log pi(a_t|s_t) * A_t]
         actor_loss = self._actor_loss_todo(log_probs, advantage)
 
-        # TODO(student): critic loss.
+        # TODO: critic loss.
         # Typical objective:
         # L_critic = MSE(V(s_t), r_t + gamma * (1-done_t) * V(s_{t+1}))
         critic_loss = self._critic_loss_todo(rewards_t, dones_t, values, next_values)
@@ -145,10 +145,10 @@ class ActorCriticAgent(BaseAgent):
         values: torch.Tensor,
         next_values: torch.Tensor,
     ) -> torch.Tensor:
-        raise NotImplementedError("TODO(student): implement Actor-Critic advantage.")
+        raise NotImplementedError("TODO: implement Actor-Critic advantage.")
 
     def _actor_loss_todo(self, log_probs: torch.Tensor, advantage: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError("TODO(student): implement Actor-Critic actor loss.")
+        raise NotImplementedError("TODO: implement Actor-Critic actor loss.")
 
     def _critic_loss_todo(
         self,
@@ -157,7 +157,7 @@ class ActorCriticAgent(BaseAgent):
         values: torch.Tensor,
         next_values: torch.Tensor,
     ) -> torch.Tensor:
-        raise NotImplementedError("TODO(student): implement Actor-Critic critic loss.")
+        raise NotImplementedError("TODO: implement Actor-Critic critic loss.")
 
     def act(self, state: int, deterministic: bool = True) -> int:
         with torch.no_grad():

@@ -64,15 +64,15 @@ class PolicyIterationAgent(BaseAgent):
         return stable
 
     def _bellman_expectation_backup_todo(self, env: Any, state: int) -> float:
-        # TODO(student): Bellman expectation backup for policy evaluation.
+        # TODO: Bellman expectation backup for policy evaluation.
         # Formula target:
         # V(s) = sum_a pi(a|s) * [r(s,a,s') + gamma * V(s')]
-        raise NotImplementedError("TODO(student): implement Bellman expectation backup.")
+        raise NotImplementedError("TODO: implement Bellman expectation backup.")
 
     def _greedy_action_todo(self, env: Any, state: int) -> int:
-        # TODO(student): Policy improvement step.
+        # TODO: Policy improvement step.
         # Pick argmax_a [r(s,a,s') + gamma * V(s')].
-        raise NotImplementedError("TODO(student): implement greedy action extraction.")
+        raise NotImplementedError("TODO: implement greedy action extraction.")
 
     def act(self, state: int, deterministic: bool = True) -> int:
         if deterministic:

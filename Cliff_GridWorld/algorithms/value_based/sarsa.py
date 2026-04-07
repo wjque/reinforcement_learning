@@ -73,11 +73,11 @@ class SarsaAgent(BaseAgent):
         next_action: int,
         done: bool,
     ) -> None:
-        # TODO(student): SARSA TD update.
+        # TODO: SARSA TD update.
         # Formula target:
         # Q(s,a) <- Q(s,a) + alpha * [r + gamma * Q(s',a') - Q(s,a)]
         # Terminal transition should not bootstrap future value.
-        raise NotImplementedError("TODO(student): implement SARSA update.")
+        raise NotImplementedError("TODO: implement SARSA update.")
 
     def act(self, state: int, deterministic: bool = True) -> int:
         if deterministic:

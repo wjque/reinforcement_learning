@@ -67,7 +67,11 @@ class ValueIterationAgent(BaseAgent):
     def _extract_policy_action(self, env: Any, state: int) -> int:
         # Policy extraction after value iteration.
         # Pick argmax_a [r(s,a,s') + gamma * V(s')].
-        raise NotImplementedError("TODO: implement greedy policy extraction.")
+        q_map = np.zeros(self.action_space, dtype=np.float64)
+        for action in range(self.action_space):
+            next_state, reward, done, info = env.transition(state, action)
+            q_map[action] = reward + self.gamma * (1-done) * self.value[next_state]
+        return np.argmax(q_map)
 
     def act(self, state: int, deterministic: bool = True) -> int:
         if deterministic:

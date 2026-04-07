@@ -80,17 +80,14 @@ class PolicyIterationAgent(BaseAgent):
     def _greedy_action(self, env: Any, state: int) -> int:
         # Policy improvement step.
         # Pick argmax_a [r(s,a,s') + gamma * V(s')].
-        if random.random() < 0.1:
-            return random.choice(range(self.action_space))
-        else:
-            q_map = []
-            for action in range(self.action_space):
-                next_state, reward, done, info = env.transition(state, action)
-                if done:
-                    q_map.append(reward)
-                else:
-                    q_map.append(reward + self.gamma * self.value[next_state])
-            return int(np.argmax(q_map))
+        q_map = []
+        for action in range(self.action_space):
+            next_state, reward, done, info = env.transition(state, action)
+            if done:
+                q_map.append(reward)
+            else:
+                q_map.append(reward + self.gamma * self.value[next_state])
+        return int(np.argmax(q_map))
 
     def act(self, state: int, deterministic: bool = True) -> int:
         if deterministic:

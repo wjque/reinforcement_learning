@@ -85,12 +85,12 @@ class ActorCriticAgent(BaseAgent):
                 if len(states) >= env.max_steps:
                     break
 
-            self._update_todo(states, actions, rewards, dones, next_states)
+            self._update(states, actions, rewards, dones, next_states)
             returns.append(episode_return)
 
         return {"episode_returns": returns}
 
-    def _update_todo(
+    def _update(
         self,
         states: list[np.ndarray],
         actions: list[int],
@@ -111,24 +111,15 @@ class ActorCriticAgent(BaseAgent):
         with torch.no_grad():
             next_values = self.critic(next_states_t).squeeze(-1)
 
-        # TODO: advantage estimation for Actor-Critic.
-        # Typical one-step TD advantage:
-        # A_t = r_t + gamma * (1 - done_t) * V(s_{t+1}) - V(s_t)
-        advantage = self._compute_advantage_todo(rewards_t, dones_t, values, next_values)
+        advantage = self._compute_advantage(rewards_t, dones_t, values, next_values)
 
         logits = self.actor(states_t)
         dist = Categorical(logits=logits)
         log_probs = dist.log_prob(actions_t)
 
-        # TODO: actor loss.
-        # Typical objective:
-        # L_actor = -E[log pi(a_t|s_t) * A_t]
-        actor_loss = self._actor_loss_todo(log_probs, advantage)
+        actor_loss = self._actor_loss(log_probs, advantage)
 
-        # TODO: critic loss.
-        # Typical objective:
-        # L_critic = MSE(V(s_t), r_t + gamma * (1-done_t) * V(s_{t+1}))
-        critic_loss = self._critic_loss_todo(rewards_t, dones_t, values, next_values)
+        critic_loss = self._critic_loss(rewards_t, dones_t, values, next_values)
 
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
@@ -138,25 +129,34 @@ class ActorCriticAgent(BaseAgent):
         critic_loss.backward()
         self.critic_optimizer.step()
 
-    def _compute_advantage_todo(
+    def _compute_advantage(
         self,
         rewards: torch.Tensor,
         dones: torch.Tensor,
         values: torch.Tensor,
         next_values: torch.Tensor,
     ) -> torch.Tensor:
+        # TODO: advantage estimation for Actor-Critic.
+        # Typical one-step TD advantage:
+        # A_t = r_t + gamma * (1 - done_t) * V(s_{t+1}) - V(s_t)
         raise NotImplementedError("TODO: implement Actor-Critic advantage.")
 
-    def _actor_loss_todo(self, log_probs: torch.Tensor, advantage: torch.Tensor) -> torch.Tensor:
+    def _actor_loss(self, log_probs: torch.Tensor, advantage: torch.Tensor) -> torch.Tensor:
+        # TODO: actor loss.
+        # Typical objective:
+        # L_actor = -E[log pi(a_t|s_t) * A_t]
         raise NotImplementedError("TODO: implement Actor-Critic actor loss.")
 
-    def _critic_loss_todo(
+    def _critic_loss(
         self,
         rewards: torch.Tensor,
         dones: torch.Tensor,
         values: torch.Tensor,
         next_values: torch.Tensor,
     ) -> torch.Tensor:
+        # TODO: critic loss.
+        # Typical objective:
+        # L_critic = MSE(V(s_t), r_t + gamma * (1-done_t) * V(s_{t+1}))
         raise NotImplementedError("TODO: implement Actor-Critic critic loss.")
 
     def act(self, state: int, deterministic: bool = True) -> int:

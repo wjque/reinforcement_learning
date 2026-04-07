@@ -96,12 +96,12 @@ class PPOAgent(BaseAgent):
                 if len(self.buffer) >= env.max_steps:
                     break
 
-            self._update_todo()
+            self._update()
             returns.append(episode_return)
 
         return {"episode_returns": returns}
 
-    def _update_todo(self) -> None:
+    def _update(self) -> None:
         if len(self.buffer) == 0:
             return
 
@@ -117,10 +117,8 @@ class PPOAgent(BaseAgent):
             _, next_values_t = self.net(next_states_t)
             next_values_t = next_values_t.squeeze(-1)
 
-        # TODO: GAE computation.
-        # Typical output:
-        # advantages_t, returns_t
-        advantages_t, returns_t = self._compute_gae_todo(
+        
+        advantages_t, returns_t = self._compute_gae(
             rewards_t, dones_t, values_t, next_values_t
         )
 
@@ -143,45 +141,44 @@ class PPOAgent(BaseAgent):
                 new_log_probs = dist.log_prob(mb_actions)
                 entropy = dist.entropy().mean()
 
-                # TODO: PPO clipped surrogate objective.
-                # Use ratio = exp(new_log_prob - old_log_prob) and clip to [1-eps, 1+eps].
-                policy_loss = self._policy_loss_todo(
+                policy_loss = self._policy_loss(
                     new_log_probs, mb_old_log_probs, mb_advantages
                 )
-
-                # TODO: value regression loss.
-                value_loss = self._value_loss_todo(new_values, mb_returns)
-
-                # TODO: total PPO loss combination.
-                total_loss = self._total_loss_todo(policy_loss, value_loss, entropy)
+                value_loss = self._value_loss(new_values, mb_returns)
+                total_loss = self._total_loss(policy_loss, value_loss, entropy)
 
                 self.optimizer.zero_grad()
                 total_loss.backward()
                 self.optimizer.step()
 
-    def _compute_gae_todo(
+    def _compute_gae(
         self,
         rewards: torch.Tensor,
         dones: torch.Tensor,
         values: torch.Tensor,
         next_values: torch.Tensor,
     ) -> tuple[torch.Tensor, torch.Tensor]:
+        # TODO: GAE computation.
         raise NotImplementedError("TODO: implement PPO GAE and returns.")
 
-    def _policy_loss_todo(
+    def _policy_loss(
         self,
         new_log_probs: torch.Tensor,
         old_log_probs: torch.Tensor,
         advantages: torch.Tensor,
     ) -> torch.Tensor:
+        # TODO: PPO clipped surrogate objective.
+        # Use ratio = exp(new_log_prob - old_log_prob) and clip to [1-eps, 1+eps].
         raise NotImplementedError("TODO: implement PPO clipped policy loss.")
 
-    def _value_loss_todo(self, new_values: torch.Tensor, returns: torch.Tensor) -> torch.Tensor:
+    def _value_loss(self, new_values: torch.Tensor, returns: torch.Tensor) -> torch.Tensor:
+        # TODO: value regression loss.
         raise NotImplementedError("TODO: implement PPO value loss.")
 
-    def _total_loss_todo(
+    def _total_loss(
         self, policy_loss: torch.Tensor, value_loss: torch.Tensor, entropy: torch.Tensor
     ) -> torch.Tensor:
+        # TODO: total PPO loss combination.
         raise NotImplementedError("TODO: implement PPO total loss composition.")
 
     def act(self, state: int, deterministic: bool = True) -> int:

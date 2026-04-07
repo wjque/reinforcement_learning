@@ -146,4 +146,26 @@ class CliffGridWorldEnv:
     def iter_states(self) -> Iterator[int]:
         for s in range(self.state_space):
             yield s
+    
+    def copy(self) -> CliffGridWorldEnv:
+        """Create an independent copy of the environment, including runtime state."""
+        cloned = CliffGridWorldEnv(
+            rows=self.rows,
+            cols=self.cols,
+            start=(self.start.row, self.start.col),
+            goal=(self.goal.row, self.goal.col),
+        )
+
+        # Copy mutable runtime/config states in case they were customized after init.
+        cloned.cliff_cells = set(self.cliff_cells)
+        cloned.max_steps = self.max_steps
+        cloned._action_deltas = dict(self._action_deltas)
+        cloned.agent_pos = GridPos(self.agent_pos.row, self.agent_pos.col)
+        cloned.steps = self.steps
+        cloned.done = self.done
+
+        # Copy RNG state so rollouts from the clone are reproducible.
+        cloned._rng = np.random.default_rng()
+        cloned._rng.bit_generator.state = self._rng.bit_generator.state
+        return cloned
 

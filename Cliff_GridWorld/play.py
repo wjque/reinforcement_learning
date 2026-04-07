@@ -45,8 +45,14 @@ def run_play(
     out_path.mkdir(parents=True, exist_ok=True)
 
     results: Dict[str, Dict[str, float]] = {}
+    base_env = CliffGridWorldEnv(
+            rows=10,
+            cols=20,
+            start=(3, 0),
+            goal=(3, 15),
+        )
     for algo in algos:
-        env = CliffGridWorldEnv()
+        env = base_env.copy()
         agent = create_agent(
             algo,
             env.state_space,
@@ -80,7 +86,7 @@ def run_play(
             title=f"Policy Heatmap: {algo}",
         )
 
-        trajectory_env = CliffGridWorldEnv()
+        trajectory_env = base_env.copy()
         trajectory, end_event = collect_episode_trajectory(
             agent=agent,
             env=trajectory_env,

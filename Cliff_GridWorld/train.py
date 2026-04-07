@@ -26,7 +26,15 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    env = CliffGridWorldEnv()
+    # Use a more challenging map than the default 4x12 setup.
+    # The larger grid increases planning horizon and state space while keeping
+    # the cliff corridor on the path between start and goal.
+    env = CliffGridWorldEnv(
+        rows=10,
+        cols=20,
+        start=(3, 0),
+        goal=(3, 15),
+    )
     agent = create_agent(
         args.algo,
         env.state_space,
@@ -49,4 +57,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

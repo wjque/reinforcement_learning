@@ -50,6 +50,21 @@ class TestCliffGridWorldEnv(unittest.TestCase):
             row, col = self.env.state_to_pos(state)
             self.assertEqual(self.env.pos_to_state(row, col), state)
 
+    def test_copy_creates_independent_runtime_state(self) -> None:
+        self.env.reset(seed=7)
+        self.env.step(self.env.UP)
+        env_copy = self.env.copy()
+
+        self.assertIsNot(env_copy, self.env)
+        self.assertEqual(env_copy.rows, self.env.rows)
+        self.assertEqual(env_copy.cols, self.env.cols)
+        self.assertEqual(env_copy.agent_pos, self.env.agent_pos)
+        self.assertEqual(env_copy.steps, self.env.steps)
+        self.assertEqual(env_copy.done, self.env.done)
+
+        env_copy.step(self.env.RIGHT)
+        self.assertNotEqual(env_copy.agent_pos, self.env.agent_pos)
+
 
 if __name__ == "__main__":
     unittest.main()

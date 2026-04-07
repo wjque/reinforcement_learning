@@ -38,7 +38,7 @@ class ValueIterationAgent(BaseAgent):
                 if env.is_terminal(state):
                     continue
                 old_v = self.value[state]
-                self.value[state] = self._optimality_backup_todo(env, state)
+                self.value[state] = self._optimality_backup(env, state)
                 delta = max(delta, abs(old_v - self.value[state]))
             iters = i + 1
             if delta < self.theta:
@@ -49,18 +49,23 @@ class ValueIterationAgent(BaseAgent):
             if env.is_terminal(state):
                 self.policy[state] = 0
             else:
-                self.policy[state] = self._extract_policy_action_todo(env, state)
+                self.policy[state] = self._extract_policy_action(env, state)
 
         return {"iterations": iters, "converged": converged}
 
-    def _optimality_backup_todo(self, env: Any, state: int) -> float:
-        # TODO: Bellman optimality backup.
-        # Formula target:
+    def _optimality_backup(self, env: Any, state: int) -> float:
+        # Bellman optimality backup.
         # V(s) = max_a [r(s,a,s') + gamma * V(s')]
-        raise NotImplementedError("TODO: implement Bellman optimality backup.")
+        new_vs = np.zeros(self.action_space, dtype=np.float64)
+        for action in range(self.action_space):
+            next_state, reward, done, info = env.transition(state, action)
+            new_vs[action] = reward
+            if not done:
+                new_vs[action] += self.gamma * self.value[next_state]
+        return np.max(new_vs)
 
-    def _extract_policy_action_todo(self, env: Any, state: int) -> int:
-        # TODO: Policy extraction after value iteration.
+    def _extract_policy_action(self, env: Any, state: int) -> int:
+        # Policy extraction after value iteration.
         # Pick argmax_a [r(s,a,s') + gamma * V(s')].
         raise NotImplementedError("TODO: implement greedy policy extraction.")
 

@@ -47,7 +47,7 @@ class SarsaAgent(BaseAgent):
                 episode_return += reward
 
                 next_action = self._epsilon_greedy(next_state) if not done else 0
-                self._sarsa_update_todo(state, action, reward, next_state, next_action, done)
+                self._sarsa_update(state, action, reward, next_state, next_action, done)
 
                 state = next_state
                 action = next_action
@@ -64,7 +64,7 @@ class SarsaAgent(BaseAgent):
             return int(self._rng.integers(0, self.action_space))
         return int(np.argmax(self.q_table[state]))
 
-    def _sarsa_update_todo(
+    def _sarsa_update(
         self,
         state: int,
         action: int,
@@ -73,11 +73,12 @@ class SarsaAgent(BaseAgent):
         next_action: int,
         done: bool,
     ) -> None:
-        # TODO: SARSA TD update.
-        # Formula target:
+        # SARSA TD update.
         # Q(s,a) <- Q(s,a) + alpha * [r + gamma * Q(s',a') - Q(s,a)]
         # Terminal transition should not bootstrap future value.
-        raise NotImplementedError("TODO: implement SARSA update.")
+        self.q_table[state][action] = self.q_table[state][action] + self.alpha * (reward - self.q_table[state][action])
+        if not done:
+            self.q_table[state][action] += self.alpha * self.gamma * self.q_table[next_state][next_action]
 
     def act(self, state: int, deterministic: bool = True) -> int:
         if deterministic:

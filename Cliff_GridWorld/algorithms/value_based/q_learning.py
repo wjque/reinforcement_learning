@@ -46,7 +46,7 @@ class QLearningAgent(BaseAgent):
                 next_state, reward, done, _ = env.step(action)
                 episode_return += reward
 
-                self._q_learning_update_todo(state, action, reward, next_state, done)
+                self._q_learning_update(state, action, reward, next_state, done)
 
                 state = next_state
                 if done:
@@ -62,7 +62,7 @@ class QLearningAgent(BaseAgent):
             return int(self._rng.integers(0, self.action_space))
         return int(np.argmax(self.q_table[state]))
 
-    def _q_learning_update_todo(
+    def _q_learning_update(
         self,
         state: int,
         action: int,
@@ -70,11 +70,12 @@ class QLearningAgent(BaseAgent):
         next_state: int,
         done: bool,
     ) -> None:
-        # TODO: Q-Learning TD update.
-        # Formula target:
+        # Q-Learning TD update.
         # Q(s,a) <- Q(s,a) + alpha * [r + gamma * max_a' Q(s',a') - Q(s,a)]
         # Terminal transition should not bootstrap future value.
-        raise NotImplementedError("TODO: implement Q-Learning update.")
+        self.q_table[state][action] = self.q_table[state][action] + self.alpha * (reward - self.q_table[state][action])
+        if not done:
+            self.q_table[state][action] += self.alpha * self.gamma * np.max(self.q_table[next_state])
 
     def act(self, state: int, deterministic: bool = True) -> int:
         if deterministic:

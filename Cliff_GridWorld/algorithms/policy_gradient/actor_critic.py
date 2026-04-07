@@ -10,6 +10,8 @@ from torch.distributions import Categorical
 from common.base_agent import BaseAgent
 from common.networks import CategoricalActor, Critic
 
+from tqdm import tqdm
+
 
 class ActorCriticAgent(BaseAgent):
     algorithm_name = "actor_critic"
@@ -54,7 +56,7 @@ class ActorCriticAgent(BaseAgent):
             torch.manual_seed(seed)
 
         returns: list[float] = []
-        for ep in range(episodes):
+        for ep in tqdm(range(episodes)):
             state = env.reset(seed=None if seed is None else seed + ep)
             done = False
             episode_return = 0.0
@@ -136,16 +138,16 @@ class ActorCriticAgent(BaseAgent):
         values: torch.Tensor,
         next_values: torch.Tensor,
     ) -> torch.Tensor:
-        # TODO: advantage estimation for Actor-Critic.
+        # advantage estimation for Actor-Critic.
         # Typical one-step TD advantage:
         # A_t = r_t + gamma * (1 - done_t) * V(s_{t+1}) - V(s_t)
-        raise NotImplementedError("TODO: implement Actor-Critic advantage.")
+        return rewards + self.gamma * (1 - dones) * next_values - values
 
     def _actor_loss(self, log_probs: torch.Tensor, advantage: torch.Tensor) -> torch.Tensor:
-        # TODO: actor loss.
-        # Typical objective:
+        # actor loss.
         # L_actor = -E[log pi(a_t|s_t) * A_t]
-        raise NotImplementedError("TODO: implement Actor-Critic actor loss.")
+        all_loss = log_probs * advantage
+        return all_loss.mean()
 
     def _critic_loss(
         self,
@@ -154,10 +156,10 @@ class ActorCriticAgent(BaseAgent):
         values: torch.Tensor,
         next_values: torch.Tensor,
     ) -> torch.Tensor:
-        # TODO: critic loss.
-        # Typical objective:
+        # critic loss.
         # L_critic = MSE(V(s_t), r_t + gamma * (1-done_t) * V(s_{t+1}))
-        raise NotImplementedError("TODO: implement Actor-Critic critic loss.")
+        all_loss = (values - rewards - self.gamma * (1-dones) * next_values)
+        return all_loss.mean()
 
     def act(self, state: int, deterministic: bool = True) -> int:
         with torch.no_grad():

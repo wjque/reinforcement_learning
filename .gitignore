@@ -13,3 +13,6 @@ env/
 .idea/
 .vscode/
 .DS_Store
+
+# personal file
+notes.md

@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torch.distributions import Categorical
+from tqdm import tqdm
 
 from common.base_agent import BaseAgent
 from common.buffers import RolloutBuffer
@@ -66,7 +67,7 @@ class PPOAgent(BaseAgent):
             torch.manual_seed(seed)
 
         returns: list[float] = []
-        for ep in range(episodes):
+        for ep in tqdm(range(episodes), desc=f"{episodes} Episodes"):
             state = env.reset(seed=None if seed is None else seed + ep)
             done = False
             episode_return = 0.0

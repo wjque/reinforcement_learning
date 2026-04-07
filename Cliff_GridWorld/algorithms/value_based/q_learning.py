@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 import numpy as np
+from tqdm import tqdm
 
 from common.base_agent import BaseAgent
 
@@ -37,7 +38,7 @@ class QLearningAgent(BaseAgent):
             self._rng = np.random.default_rng(seed)
 
         returns: list[float] = []
-        for ep in range(episodes):
+        for ep in tqdm(range(episodes), desc="Episode"):
             state = env.reset(seed=None if seed is None else seed + ep)
             episode_return = 0.0
 

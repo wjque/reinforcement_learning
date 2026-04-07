@@ -2,6 +2,6 @@
 
 # Please run under Cliff_GridWorld
 python play.py \
-    --algos policy_iteration \
+    --algos q_learning \
     --model-dir ./checkpoints \
     --output-dir ./output \

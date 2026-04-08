@@ -18,3 +18,6 @@ env/
 notes.md
 Cliff_GridWorld/checkpoints/
 Cliff_GridWorld/output/
+Atari-Pong/logs/
+Atari-Pong/outputs/
+Atari-Pong/checkpoints/
